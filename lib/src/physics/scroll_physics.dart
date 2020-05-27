@@ -115,16 +115,22 @@ class EasyRefreshPhysics extends ScrollPhysics {
     }
     return 0.0;
   }
-
+  
+  static double preMaxScrollExtent = 0;
   @override
   Simulation createBallisticSimulation(
       ScrollMetrics position, double velocity) {
     final Tolerance tolerance = this.tolerance;
+    bool heightDidChange = false;
+    heightDidChange = (position.maxScrollExtent - preMaxScrollExtent) > 50;
+    preMaxScrollExtent = position.maxScrollExtent;
+    
     if (velocity.abs() >= tolerance.velocity || position.outOfRange) {
       return BouncingScrollSimulation(
         spring: spring,
         position: position.pixels,
-        velocity: velocity *
+        velocity: heightDidChange ? velocity.abs() *
+            0.91 : velocity *
             0.91, // TODO(abarth): We should move this constant closer to the drag end.
         leadingExtent: position.minScrollExtent,
         trailingExtent: position.maxScrollExtent,
